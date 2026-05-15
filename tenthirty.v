@@ -83,7 +83,7 @@ reg btn_m_d, btn_r_d;
 wire btn_m_pos = btn_m && !btn_m_d;
 wire btn_r_pos = btn_r && !btn_r_d;
 
-// ✨ 加入 Pending 暫存器
+
 reg btn_m_pending;
 reg btn_r_pending;
 
@@ -106,14 +106,13 @@ always @(posedge d_clk or negedge rst_n) begin
     end else begin
         btn_m_d <= btn_m; btn_r_d <= btn_r;
         
-        // ✨ 無論 FSM 在哪個狀態，只要 Testbench 按下按鈕，就立刻鎖定進 Pending
         if (btn_m_pos) btn_m_pending <= 1'b1;
         if (btn_r_pos) btn_r_pending <= 1'b1;
 
         case (state)
             S_IDLE: begin
                 if (btn_m_pos || btn_m_pending) begin 
-                    btn_m_pending <= 0; // 消耗按鈕訊號
+                    btn_m_pending <= 0; 
                     if (round_cnt == 0) led_mode <= switch; 
                     state <= S_DRAW_P1; 
                 end
@@ -138,7 +137,7 @@ always @(posedge d_clk or negedge rst_n) begin
                 d_hist[0] <= number;
                 d_hist_valid[0] <= 1;
                 dealer_cards <= 1;
-                state <= S_HIT_P; // 直接交棒，不等待放開
+                state <= S_HIT_P; 
             end
 
             // --- 玩家補牌 ---
@@ -147,7 +146,6 @@ always @(posedge d_clk or negedge rst_n) begin
                     state <= S_HIT_D;
                     btn_m_pending <= 0; // 爆牌時，清空多餘的連按
                 end
-                // ✨ 檢查當下的邊緣觸發，或是剛剛被記下來的 Pending
                 else if (btn_m_pos || btn_m_pending) begin
                     btn_m_pending <= 0;
                     state <= S_DRAW_P;
@@ -279,7 +277,7 @@ always @(*) begin
 end
 
 //================================================================
-// SEGMENT (Don't revise)
+// SEGMENT 
 //================================================================
 always@(posedge dis_clk or negedge rst_n) begin
     if(!rst_n) begin
